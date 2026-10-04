@@ -434,12 +434,12 @@
       <p class="location">Quito, Ecuador</p>
 
       <div class="actions">
-        <button class="action action-primary" id="save-contact" type="button">
+        <a class="action action-primary" id="save-contact" href="./contacto.vcf" download="Jose-Miguel-Alejandro.vcf">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
             <path d="M12 5v14M5 12h14"/>
           </svg>
           Guardar contacto
-        </button>
+        </a>
 
         <button class="action" id="share-profile" type="button" aria-label="Compartir perfil">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -452,7 +452,7 @@
     <section class="panel" aria-labelledby="contact-heading">
       <h2 id="contact-heading">Contacto y redes</h2>
       <div class="links">
-        <a class="link" href="https://wa.me/593991128445" target="_blank" rel="noopener noreferrer">
+        <a class="link" href="https://wa.me/593991128445">
           <strong>WhatsApp</strong><span>099 112 8445</span>
         </a>
 
@@ -499,18 +499,29 @@
   </main>
 
   <script>
-    "use strict";
-
-    const requestedProfile = new URLSearchParams(location.search).get("p");
-
-    if (requestedProfile && requestedProfile.toLowerCase() !== "jose") {
-      document.title = "Perfil no encontrado";
-      document.getElementById("page").innerHTML =
-        '<section class="unavailable"><div><h1>Perfil no encontrado</h1><p>No pudimos encontrar este perfil.</p></div></section>';
-    } else {
-      document.getElementById("save-contact").addEventListener("click", () => {
-        const vcard = [
-          "BEGIN:VCARD",
-          "VERSION:3.0",
-          "N:Alejandro Ruiz;José Miguel;;;",
-          "
+"use strict";
+const requestedProfile = new URLSearchParams(location.search).get("p");
+if (requestedProfile && requestedProfile.toLowerCase() !== "jose") {
+ document.title = "Perfil no encontrado";
+ document.getElementById("page").innerHTML = '<section class="unavailable"><div><h1>Perfil no encontrado</h1><p>No pudimos encontrar este perfil.</p></div></section>';
+} else {
+ document.getElementById("contact-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const name = document.getElementById("visitor-name").value.trim();
+  const about = document.getElementById("visitor-about").value.trim();
+  if (!name || !about) { document.getElementById(!name ? "visitor-name" : "visitor-about").focus(); return; }
+  const message = `Hola José Miguel, soy ${name}. Me dedico a ${about}. Me gustaría conectar contigo.`;
+  location.href = "https://wa.me/593991128445?text=" + encodeURIComponent(message);
+ });
+ document.getElementById("share-profile").addEventListener("click", async () => {
+  const data = { title: document.title, text: "Conecta con José Miguel Alejandro", url: location.href };
+  try {
+   if (navigator.share) await navigator.share(data);
+   else if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(data.url); alert("Enlace del perfil copiado."); }
+   else prompt("Copia el enlace del perfil:", data.url);
+  } catch (error) { if (error.name !== "AbortError") prompt("Copia el enlace del perfil:", data.url); }
+ });
+}
+  </script>
+</body>
+</html>
